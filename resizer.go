@@ -390,12 +390,9 @@ func zoomImage(image *C.VipsImage, zoom int) (*C.VipsImage, error) {
 
 func shrinkImage(image *C.VipsImage, o Options, residual float64, shrink int) (*C.VipsImage, float64, error) {
 	// Use vips_shrink with the integral reduction
-	if shrink > 1 {
-		var err error
-		image, err = vipsShrink(image, shrink)
-		if err != nil {
-			return nil, 0, err
-		}
+	image, err := vipsShrink(image, shrink)
+	if err != nil {
+		return nil, 0, err
 	}
 
 	// Recalculate residual float based on dimensions of required vs shrunk images
