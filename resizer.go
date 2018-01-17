@@ -188,7 +188,7 @@ func shouldApplyEffects(o Options) bool {
 func transformImage(image *C.VipsImage, o Options, shrink int, residual float64) (*C.VipsImage, error) {
 	var err error
 	// Use vips_shrink with the integral reduction
-	if shrink > 1 {
+	if shrink >= 1 && residual < 1 {
 		image, residual, err = shrinkImage(image, o, residual, shrink)
 		if err != nil {
 			return nil, err
