@@ -317,11 +317,7 @@ vips_webpsave_bridge(VipsImage *in, void **buf, size_t *len, int strip, int qual
 
 int
 vips_tiffsave_bridge(VipsImage *in, void **buf, size_t *len) {
-#if (VIPS_MAJOR_VERSION >= 8 && VIPS_MINOR_VERSION >= 5)
-	return vips_tiffsave_buffer(in, buf, len, NULL);
-#else
 	return 0;
-#endif
 }
 
 int
