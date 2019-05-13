@@ -15,7 +15,7 @@ install_libvips_from_source() {
   # Download tarball
   echo "Compiling libvips v$vips_version_full from source"
   curl -L -o vips-$vips_version_full.tar.gz $tarbal_url
-  tar zvxf libvips-$vips_version_full.tar.gz
+  tar zvxf vips-$vips_version_full.tar.gz
   cd libvips-$vips_version_full
 
   # Compile
