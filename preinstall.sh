@@ -15,8 +15,8 @@ install_libvips_from_source() {
   # Download tarball
   echo "Compiling libvips v$vips_version_full from source"
   curl -L -o vips-$vips_version_full.tar.gz $tarbal_url
-  tar zvxf vips-$vips_version_full.tar.gz
-  cd vips-$vips_version_full
+  tar zvxf libvips-$vips_version_full.tar.gz
+  cd libvips-$vips_version_full
 
   # Compile
   CXXFLAGS="-D_GLIBCXX_USE_CXX11_ABI=0" ./configure --disable-debug --disable-docs --disable-static --disable-introspection --disable-dependency-tracking --enable-cxx=yes --without-python --without-orc --without-fftw $1
