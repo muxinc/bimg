@@ -185,6 +185,9 @@ func VipsIsTypeSupported(t ImageType) bool {
 	if t == MAGICK {
 		return int(C.vips_type_find_bridge(C.MAGICK)) != 0
 	}
+	if t == HEIF {
+		return int(C.vips_type_find_bridge(C.HEIF)) != 0
+	}
 	return false
 }
 
@@ -203,6 +206,9 @@ func VipsIsTypeSupportedSave(t ImageType) bool {
 	}
 	if t == TIFF {
 		return int(C.vips_type_find_save_bridge(C.TIFF)) != 0
+	}
+	if t == HEIF {
+		return int(C.vips_type_find_save_bridge(C.HEIF)) != 0
 	}
 	return false
 }
@@ -233,7 +239,7 @@ func vipsRotate(image *C.VipsImage, angle Angle) (*C.VipsImage, error) {
 	var out *C.VipsImage
 	defer C.g_object_unref(C.gpointer(image))
 
-	err := C.vips_rotate(image, &out, C.int(angle))
+	err := C.vips_rotate_bimg(image, &out, C.int(angle))
 	if err != 0 {
 		return nil, catchVipsError()
 	}
@@ -431,6 +437,8 @@ func vipsSave(image *C.VipsImage, o vipsSaveOptions) ([]byte, error) {
 		saveErr = C.vips_pngsave_bridge(tmpImage, &ptr, &length, strip, C.int(o.Compression), quality, interlace)
 	case TIFF:
 		saveErr = C.vips_tiffsave_bridge(tmpImage, &ptr, &length)
+	case HEIF:
+		saveErr = C.vips_heifsave_bridge(tmpImage, &ptr, &length, strip, quality, lossless)
 	default:
 		saveErr = C.vips_jpegsave_bridge(tmpImage, &ptr, &length, strip, quality, interlace)
 	}
@@ -572,7 +580,7 @@ func vipsReduce(input *C.VipsImage, xshrink float64, yshrink float64) (*C.VipsIm
 func vipsEmbed(input *C.VipsImage, left, top, width, height int, extend Extend, background Color) (*C.VipsImage, error) {
 	var image *C.VipsImage
 
-	// Max extend value, see: http://www.vips.ecs.soton.ac.uk/supported/8.4/doc/html/libvips/libvips-conversion.html#VipsExtend
+	// Max extend value, see: https://jcupitt.github.io/libvips/API/current/libvips-conversion.html#VipsExtend
 	if extend > 5 {
 		extend = ExtendBackground
 	}
@@ -633,6 +641,18 @@ func vipsImageType(buf []byte) ImageType {
 	}
 	if IsTypeSupported(MAGICK) && strings.HasSuffix(readImageType(buf), "MagickBuffer") {
 		return MAGICK
+	}
+	// NOTE: libheif currently only supports heic sub types; see:
+	//   https://github.com/strukturag/libheif/issues/83#issuecomment-421427091
+	if IsTypeSupported(HEIF) && buf[4] == 0x66 && buf[5] == 0x74 && buf[6] == 0x79 && buf[7] == 0x70 &&
+		buf[8] == 0x68 && buf[9] == 0x65 && buf[10] == 0x69 && buf[11] == 0x63 {
+		// This is a HEIC file
+		return HEIF
+	}
+	if IsTypeSupported(HEIF) && buf[4] == 0x66 && buf[5] == 0x74 && buf[6] == 0x79 && buf[7] == 0x70 &&
+		buf[8] == 0x6d && buf[9] == 0x69 && buf[10] == 0x66 && buf[11] == 0x31 {
+		// This is a HEIF file
+		return HEIF
 	}
 
 	return UNKNOWN
@@ -701,5 +721,16 @@ func vipsDrawWatermark(image *C.VipsImage, o WatermarkImage) (*C.VipsImage, erro
 		return nil, catchVipsError()
 	}
 
+	return out, nil
+}
+
+func vipsGamma(image *C.VipsImage, Gamma float64) (*C.VipsImage, error) {
+	var out *C.VipsImage
+	defer C.g_object_unref(C.gpointer(image))
+
+	err := C.vips_gamma_bridge(image, &out, C.double(Gamma))
+	if err != 0 {
+		return nil, catchVipsError()
+	}
 	return out, nil
 }

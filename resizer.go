@@ -12,6 +12,11 @@ import (
 	"math"
 )
 
+var (
+	// ErrExtractAreaParamsRequired defines a generic extract area error
+	ErrExtractAreaParamsRequired = errors.New("extract area width/height params are required")
+)
+
 // resizer is used to transform a given image as byte buffer
 // with the passed options.
 func resizer(buf []byte, o Options) ([]byte, error) {
@@ -35,8 +40,8 @@ func resizer(buf []byte, o Options) ([]byte, error) {
 		return nil, err
 	}
 
-	// If JPEG image, retrieve the buffer
-	if rotated && imageType == JPEG && !o.NoAutoRotate {
+	// If JPEG or HEIF image, retrieve the buffer
+	if rotated && (imageType == JPEG || imageType == HEIF) && !o.NoAutoRotate {
 		buf, err = getImageBuffer(image)
 		if err != nil {
 			return nil, err
@@ -117,6 +122,12 @@ func resizer(buf []byte, o Options) ([]byte, error) {
 
 	// Flatten image on a background, if necessary
 	image, err = imageFlatten(image, imageType, o)
+	if err != nil {
+		return nil, err
+	}
+
+	// Apply Gamma filter, if necessary
+	image, err = applyGamma(image, o)
 	if err != nil {
 		return nil, err
 	}
@@ -273,7 +284,7 @@ func extractOrEmbedImage(image *C.VipsImage, o Options) (*C.VipsImage, error) {
 		break
 	case o.Top != 0 || o.Left != 0 || o.AreaWidth != 0 || o.AreaHeight != 0:
 		if o.AreaWidth == 0 {
-			o.AreaHeight = o.Width
+			o.AreaWidth = o.Width
 		}
 		if o.AreaHeight == 0 {
 			o.AreaHeight = o.Height
@@ -376,6 +387,17 @@ func imageFlatten(image *C.VipsImage, imageType ImageType, o Options) (*C.VipsIm
 		return image, nil
 	}
 	return vipsFlattenBackground(image, o.Background)
+}
+
+func applyGamma(image *C.VipsImage, o Options) (*C.VipsImage, error) {
+	var err error
+	if o.Gamma > 0 {
+		image, err = vipsGamma(image, o.Gamma)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return image, nil
 }
 
 func zoomImage(image *C.VipsImage, zoom int) (*C.VipsImage, error) {

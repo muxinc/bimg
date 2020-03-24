@@ -6,7 +6,7 @@ bimg was designed to be a small and efficient library supporting a common set of
 
 bimg is able to output images as JPEG, PNG and WEBP formats, including transparent conversion across them.
 
-bimg uses internally libvips, a powerful library written in C for image processing which requires a [low memory footprint](http://www.vips.ecs.soton.ac.uk/index.php?title=Speed_and_Memory_Use)
+bimg uses internally libvips, a powerful library written in C for image processing which requires a [low memory footprint](https://github.com/jcupitt/libvips/wiki/Speed_and_Memory_Use)
 and it's typically 4x faster than using the quickest ImageMagick and GraphicsMagick settings or Go native `image` package, and in some cases it's even 8x faster processing JPEG images.
 
 If you're looking for an HTTP based image processing solution, see [imaginary](https://github.com/h2non/imaginary).
@@ -49,7 +49,7 @@ If you're using `gopkg.in`, you can still rely in the `v0` without worrying abou
 
 ## Prerequisites
 
-- [libvips](https://github.com/jcupitt/libvips) 7.42+ or 8+ (8.4+ recommended)
+- [libvips](https://github.com/libvips/libvips) 7.42+ or 8+ (8.4+ recommended)
 - C compatible compiler such as gcc 4.6+ or clang 3.0+
 - Go 1.3+
 
@@ -77,10 +77,10 @@ The [install script](https://github.com/h2non/bimg/blob/master/preinstall.sh) re
 
 ## Performance
 
-libvips is probably the faster open source solution for image processing.
+libvips is probably the fastest open source solution for image processing.
 Here you can see some performance test comparisons for multiple scenarios:
 
-- [libvips speed and memory usage](http://www.vips.ecs.soton.ac.uk/index.php?title=Speed_and_Memory_Use)
+- [libvips speed and memory usage](https://github.com/jcupitt/libvips/wiki/Speed-and-memory-use)
 
 ## Benchmark
 
